@@ -33,19 +33,41 @@ public class TakingTurnsQueue
     /// </summary>
     public Person GetNextPerson()
     {
+        // Guard Clause: Verify if the queue contains any people.
+        // Throws an exception matching the requirements of the unit test.
         if (_people.IsEmpty())
         {
             throw new InvalidOperationException("No one in the queue.");
         }
         else
         {
+            // Pull the next person from the front of the queue (FIFO)
             Person person = _people.Dequeue();
-            if (person.Turns > 1)
+
+            // CASE 1: Infinite Turns
+            // If turns parameter is 0 or less, they stay in the queue forever.
+            // We re-enqueue them immediately without modifying their turn count.
+            if (person.Turns <= 0)
+            {
+                _people.Enqueue(person);
+            }
+            // CASE 2: Multiple Finite Turns Remaining
+            // If they have more than 1 turn left, decrement their turn count by 1
+            // and place them back at the end of the queue.
+            else if (person.Turns > 1)
             {
                 person.Turns -= 1;
                 _people.Enqueue(person);
             }
+            // CASE 3: Final Turn
+            // If they have exactly 1 turn left, decrement it to 0. 
+            // They have exhausted their turns and will NOT be added back to the queue.
+            else
+            {
+                person.Turns -= 1;
+            }
 
+            // Return the person who just took their turn
             return person;
         }
     }
